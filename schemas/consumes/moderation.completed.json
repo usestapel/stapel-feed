@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "moderation.completed",
+  "description": "Consumed from stapel-moderation: the verdict for one target. stapel-feed acts on target_type post or comment only: rejected -> status blocked (hidden from every read; the author still sees it as blocked), approved on a blocked row -> published. needs_review and dismissed change nothing.",
+  "type": "object",
+  "properties": {
+    "target_type": {
+      "type": "string"
+    },
+    "target_key": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_type",
+    "target_key",
+    "decision"
+  ],
+  "additionalProperties": true
+}

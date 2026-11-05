@@ -1,0 +1,1044 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/feed/api/v1/authors/{user_id}/posts/": {
+      "get": {
+        "operationId": "feed_authors_posts_list",
+        "description": "One author's posts; followers-only posts to their followers.\n\n**Permissions:** `AllowAny`",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "anchor",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id to continue after (exclusive)."
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "center",
+                "next",
+                "prev"
+              ]
+            },
+            "description": "Walk direction from the anchor."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page size, default 20, max 100."
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostPage"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/feed/api/v1/comments/{comment_id}/": {
+      "delete": {
+        "operationId": "feed_comments_destroy",
+        "description": "Delete a comment: its author or the post's author.\n\n**Permissions:** `IsAuthenticated`",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "comment_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/feed/api/v1/home/": {
+      "get": {
+        "operationId": "feed_home_list",
+        "description": "Posts of the people the caller follows, plus their own.\n\nA guest session is refused in the body (``home_requires_account``).\n\n**Permissions:** `IsAuthenticated`",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "anchor",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id to continue after (exclusive)."
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "center",
+                "next",
+                "prev"
+              ]
+            },
+            "description": "Walk direction from the anchor."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page size, default 20, max 100."
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostPage"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/feed/api/v1/posts/": {
+      "post": {
+        "operationId": "feed_posts_create",
+        "description": "Publish a post.\n\n**Permissions:** `IsAuthenticated`",
+        "tags": [
+          "Feed"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostCreateRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostCreateRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PostCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/feed/api/v1/posts/{post_id}/": {
+      "get": {
+        "operationId": "feed_posts_retrieve",
+        "description": "One post; the author edits it inside the window or deletes it.\n\n**Permissions:** `AllowAny`",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "post_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "feed_posts_partial_update",
+        "description": "One post; the author edits it inside the window or deletes it.\n\n**Permissions:** `AllowAny`",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "post_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedPostUpdateRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedPostUpdateRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedPostUpdateRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "feed_posts_destroy",
+        "description": "One post; the author edits it inside the window or deletes it.\n\n**Permissions:** `AllowAny`",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "post_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/feed/api/v1/posts/{post_id}/comments/": {
+      "get": {
+        "operationId": "feed_posts_comments_list",
+        "description": "Comments under a post: read them, add one.\n\n**Permissions:** `AllowAny`",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "anchor",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id to continue after (exclusive)."
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "center",
+                "next",
+                "prev"
+              ]
+            },
+            "description": "Walk direction from the anchor."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page size, default 50, max 100."
+          },
+          {
+            "in": "path",
+            "name": "post_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentPage"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "feed_posts_comments_create",
+        "description": "Comments under a post: read them, add one.\n\n**Permissions:** `AllowAny`",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "post_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentCreateRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentCreateRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/feed/api/v1/public/": {
+      "get": {
+        "operationId": "feed_public_list",
+        "description": "Every public post, newest first.\n\n**Permissions:** `AllowAny`",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "anchor",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id to continue after (exclusive)."
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "center",
+                "next",
+                "prev"
+              ]
+            },
+            "description": "Walk direction from the anchor."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page size, default 20, max 100."
+          }
+        ],
+        "tags": [
+          "Feed"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostPage"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/feed/api/v1/reactions/": {
+      "put": {
+        "operationId": "feed_reactions_update",
+        "description": "Toggle (or set) the caller's reaction on a post or a comment.\n\n**Permissions:** `IsAuthenticated`",
+        "tags": [
+          "Feed"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReactionToggleRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ReactionToggleRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ReactionToggleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactionStateResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthorCard": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "avatar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ImageObject"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "required": [
+          "avatar",
+          "display_name",
+          "user_id"
+        ]
+      },
+      "CommentCreateRequest": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "CommentPage": {
+        "type": "object",
+        "description": "The AnchorPagination envelope of ``GET posts/<id>/comments/``.",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentResponse"
+            }
+          },
+          "next_anchor": {
+            "type": "integer",
+            "nullable": true
+          },
+          "prev_anchor": {
+            "type": "integer",
+            "nullable": true
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "has_prev": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "count",
+          "has_next",
+          "has_prev",
+          "items",
+          "next_anchor",
+          "prev_anchor"
+        ]
+      },
+      "CommentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "post_id": {
+            "type": "integer"
+          },
+          "author_id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "author": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthorCard"
+              }
+            ],
+            "nullable": true
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "status": {
+            "$ref": "#/components/schemas/ContentStatusEnum"
+          },
+          "reaction_counts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "my_reactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 16
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "author",
+          "author_id",
+          "body",
+          "created_at",
+          "deletable",
+          "id",
+          "my_reactions",
+          "post_id",
+          "reaction_counts",
+          "status"
+        ]
+      },
+      "ContentStatusEnum": {
+        "enum": [
+          "published",
+          "blocked",
+          "deleted"
+        ],
+        "type": "string",
+        "description": "* `published` - Published\n* `blocked` - Blocked\n* `deleted` - Deleted"
+      },
+      "ImageMetaStatusEnum": {
+        "enum": [
+          "ok",
+          "partial",
+          "missing"
+        ],
+        "type": "string",
+        "description": "* `ok` - ok\n* `partial` - partial\n* `missing` - missing"
+      },
+      "ImageObject": {
+        "type": "object",
+        "description": "The fleet's one image object (stapel-cdn's describe vocabulary).",
+        "properties": {
+          "ref": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "mime": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "ext": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 16
+          },
+          "bytes": {
+            "type": "integer",
+            "nullable": true
+          },
+          "width": {
+            "type": "integer",
+            "nullable": true
+          },
+          "height": {
+            "type": "integer",
+            "nullable": true
+          },
+          "aspect": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "square": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "animated": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "preview_b64": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 16384
+          },
+          "preview_kind": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 32
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "meta_status": {
+            "$ref": "#/components/schemas/ImageMetaStatusEnum"
+          },
+          "meta_reason": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "animated",
+          "aspect",
+          "bytes",
+          "ext",
+          "height",
+          "meta_reason",
+          "meta_status",
+          "mime",
+          "preview_b64",
+          "preview_kind",
+          "ref",
+          "square",
+          "variants",
+          "width"
+        ]
+      },
+      "PatchedPostUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 255
+            },
+            "maxItems": 100
+          }
+        }
+      },
+      "PostCreateRequest": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 255
+            },
+            "maxItems": 100
+          },
+          "visibility": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VisibilityEnum"
+              }
+            ],
+            "default": "public"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "PostPage": {
+        "type": "object",
+        "description": "The AnchorPagination envelope of every post list (schema only —\nthe view's paginator builds the body).",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PostResponse"
+            }
+          },
+          "next_anchor": {
+            "type": "integer",
+            "nullable": true
+          },
+          "prev_anchor": {
+            "type": "integer",
+            "nullable": true
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "has_prev": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "count",
+          "has_next",
+          "has_prev",
+          "items",
+          "next_anchor",
+          "prev_anchor"
+        ]
+      },
+      "PostResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "author_id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "author": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthorCard"
+              }
+            ],
+            "nullable": true
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageObject"
+            }
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/VisibilityEnum"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ContentStatusEnum"
+          },
+          "comment_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reaction_counts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "my_reactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 16
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "edited_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "editable": {
+            "type": "boolean"
+          },
+          "deletable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "attachments",
+          "author",
+          "author_id",
+          "body",
+          "comment_count",
+          "created_at",
+          "deletable",
+          "editable",
+          "edited_at",
+          "id",
+          "my_reactions",
+          "reaction_counts",
+          "status",
+          "visibility"
+        ]
+      },
+      "ReactionStateResponse": {
+        "type": "object",
+        "properties": {
+          "target_type": {
+            "$ref": "#/components/schemas/TargetTypeEnum"
+          },
+          "target_key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "kind": {
+            "type": "string",
+            "maxLength": 16
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "reaction_counts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "required": [
+          "active",
+          "kind",
+          "reaction_counts",
+          "target_key",
+          "target_type"
+        ]
+      },
+      "ReactionToggleRequest": {
+        "type": "object",
+        "properties": {
+          "target_type": {
+            "$ref": "#/components/schemas/TargetTypeEnum"
+          },
+          "target_key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[0-9]{1,19}$"
+          },
+          "kind": {
+            "type": "string",
+            "default": "like",
+            "maxLength": 16
+          },
+          "active": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "required": [
+          "target_key",
+          "target_type"
+        ]
+      },
+      "TargetTypeEnum": {
+        "enum": [
+          "post",
+          "comment"
+        ],
+        "type": "string",
+        "description": "* `post` - Post\n* `comment` - Comment"
+      },
+      "VisibilityEnum": {
+        "enum": [
+          "public",
+          "followers"
+        ],
+        "type": "string",
+        "description": "* `public` - Public\n* `followers` - Followers"
+      }
+    },
+    "securitySchemes": {
+      "JWTCookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "stapel_jwt",
+        "description": "JWT token stored in cookie. Login via /auth/admin/ to get the cookie."
+      }
+    }
+  }
+}

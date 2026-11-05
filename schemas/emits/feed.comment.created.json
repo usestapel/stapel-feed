@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "feed.comment.created",
+  "description": "A comment was written under a post; post_author_id is whom to tell. Identity only. Key = post id.",
+  "type": "object",
+  "properties": {
+    "comment_id": {
+      "type": "string"
+    },
+    "post_id": {
+      "type": "string"
+    },
+    "author_id": {
+      "type": "string"
+    },
+    "post_author_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "comment_id",
+    "post_id",
+    "author_id",
+    "post_author_id"
+  ],
+  "additionalProperties": false
+}

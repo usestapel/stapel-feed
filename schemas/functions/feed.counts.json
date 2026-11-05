@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "feed.counts",
+  "description": "How many published posts a user has. Output: {posts: int}.",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "additionalProperties": false
+}

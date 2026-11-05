@@ -1,0 +1,210 @@
+[
+  {
+    "id": "feed.post",
+    "title": "Post an update",
+    "title_key": "flow.feed.post.title",
+    "description": "A member writes a post (text, a few uploaded pictures, public or for followers). It appears at once on their own and their followers' home feeds; the author may edit it for a short window and delete it any time.",
+    "description_key": "flow.feed.post.description",
+    "actors": [
+      "Member (a guest when WRITE_REQUIRES_ACCOUNT is off)"
+    ],
+    "steps": [
+      {
+        "kind": "human",
+        "order": 1,
+        "note": "The member opens the composer on the feed",
+        "note_key": "flow.feed.post.step.1.note",
+        "ref": ""
+      },
+      {
+        "kind": "http",
+        "order": 2,
+        "note": "Publish a post",
+        "note_key": "flow.feed.post.step.2.note",
+        "ref": "stapel_feed.views.PostsView.post",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/feed/api/v1/posts/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 3,
+        "note": "Read the home feed (followed authors and own posts)",
+        "note_key": "flow.feed.post.step.3.note",
+        "ref": "stapel_feed.views.HomeFeedView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/feed/api/v1/home/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 4,
+        "note": "Edit the post inside the edit window",
+        "note_key": "flow.feed.post.step.4.note",
+        "ref": "stapel_feed.views.PostDetailView.patch",
+        "endpoints": [
+          {
+            "method": "PATCH",
+            "path": "/feed/api/v1/posts/<int:post_id>/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 5,
+        "note": "Delete the post",
+        "note_key": "flow.feed.post.step.5.note",
+        "ref": "stapel_feed.views.PostDetailView.delete",
+        "endpoints": [
+          {
+            "method": "DELETE",
+            "path": "/feed/api/v1/posts/<int:post_id>/"
+          }
+        ]
+      },
+      {
+        "kind": "action",
+        "order": 6,
+        "note": "The new post is announced (identity only, no body)",
+        "note_key": "flow.feed.post.step.6.note",
+        "ref": "feed.post.created"
+      }
+    ]
+  },
+  {
+    "id": "feed.public_read",
+    "title": "Read the community",
+    "title_key": "flow.feed.public_read.title",
+    "description": "Anyone reads the public feed, an author's posts and one post with its comments. Followers-only posts reach followers only; blocked authors are hidden in both directions.",
+    "description_key": "flow.feed.public_read.description",
+    "actors": [
+      "Visitor (when PUBLIC_READ is on)",
+      "Member"
+    ],
+    "steps": [
+      {
+        "kind": "http",
+        "order": 1,
+        "note": "Read the public feed",
+        "note_key": "flow.feed.public_read.step.1.note",
+        "ref": "stapel_feed.views.PublicFeedView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/feed/api/v1/public/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 2,
+        "note": "Open one author's posts",
+        "note_key": "flow.feed.public_read.step.2.note",
+        "ref": "stapel_feed.views.AuthorPostsView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/feed/api/v1/authors/<str:user_id>/posts/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 3,
+        "note": "Open one post",
+        "note_key": "flow.feed.public_read.step.3.note",
+        "ref": "stapel_feed.views.PostDetailView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/feed/api/v1/posts/<int:post_id>/"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feed.react_comment",
+    "title": "React and comment",
+    "title_key": "flow.feed.react_comment.title",
+    "description": "A member likes a post and writes a comment under it; the counts move in the same transaction, and the post's author is notified.",
+    "description_key": "flow.feed.react_comment.description",
+    "actors": [
+      "Member"
+    ],
+    "steps": [
+      {
+        "kind": "http",
+        "order": 1,
+        "note": "Read the comments under a post",
+        "note_key": "flow.feed.react_comment.step.1.note",
+        "ref": "stapel_feed.views.PostCommentsView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/feed/api/v1/posts/<int:post_id>/comments/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 2,
+        "note": "React to the post",
+        "note_key": "flow.feed.react_comment.step.2.note",
+        "ref": "stapel_feed.views.ReactionsView.put",
+        "endpoints": [
+          {
+            "method": "PUT",
+            "path": "/feed/api/v1/reactions/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 3,
+        "note": "Comment on the post",
+        "note_key": "flow.feed.react_comment.step.3.note",
+        "ref": "stapel_feed.views.PostCommentsView.post",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/feed/api/v1/posts/<int:post_id>/comments/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 4,
+        "note": "Delete a comment",
+        "note_key": "flow.feed.react_comment.step.4.note",
+        "ref": "stapel_feed.views.CommentDetailView.delete",
+        "endpoints": [
+          {
+            "method": "DELETE",
+            "path": "/feed/api/v1/comments/<int:comment_id>/"
+          }
+        ]
+      },
+      {
+        "kind": "action",
+        "order": 5,
+        "note": "The reaction change is announced",
+        "note_key": "flow.feed.react_comment.step.5.note",
+        "ref": "feed.reaction.changed"
+      },
+      {
+        "kind": "action",
+        "order": 6,
+        "note": "The comment is announced to the post author",
+        "note_key": "flow.feed.react_comment.step.6.note",
+        "ref": "feed.comment.created"
+      }
+    ]
+  }
+]

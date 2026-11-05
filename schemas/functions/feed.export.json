@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "feed.export",
+  "description": "Cursor snapshot of posts (identity, visibility, status, counters; no body). Output: {rows: [{post_id, author_id, visibility, status, comment_count, reaction_counts, created_at, seq}], cursor, total}.",
+  "type": "object",
+  "properties": {
+    "cursor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

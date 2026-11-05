@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "feed.post.deleted",
+  "description": "The author deleted a post (soft). Key = post id.",
+  "type": "object",
+  "properties": {
+    "post_id": {
+      "type": "string"
+    },
+    "author_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "post_id",
+    "author_id"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,118 @@
+# stapel-feed 0.1.0
+
+Posts, comments, reactions and feeds for a community. Members post plain-text updates with up to ten uploaded pictures, public or for followers; others comment (flat, no threads) and react (one reaction per user per target, toggled, counted on the target in the same transaction). Four anchor-paginated reads: home (followed authors and own posts), public, one author's posts, one post with its comments. Following and blocks are read from profiles through one comm Function (profiles.social_graph); when it cannot be asked, home and public answer 503 rather than show a blocked author. Moderation takes a post or comment down through the moderation.completed verdict; GDPR erasure is a hard delete with counters recomputed.
+
+Contract: axes 2 · surface 2 · extension points 6 · operations 11 · error codes 53 · flows 3.
+Generated from docs/capabilities.json by `stapel-llms-txt` — do not edit; drift-gated by `make contract-check`.
+
+## Configuration axes — what a product switches on
+Settings keys; `default` is what you get by saying nothing. Turning an axis off unmounts the operations it gates.
+- PUBLIC_READ [bool, default true] — Visitors can read
+  Whether people without an account can read the public feed, profiles' post lists and single posts with their comments. true (default): an open community. false: members only. Values: true, false.
+- WRITE_REQUIRES_ACCOUNT [bool, default true] — Who may post and comment
+  Whether a guest session (no registered account) may post, comment and react. true (default): sign-in required. false: guests may write too. Values: true, false.
+
+## Usage surface — call these before writing your own
+This is the answer to "does Stapel already have something for X?". `instead of` names the outside symbol this one displaces.
+### gate_function
+- fetch_graph — stapel_feed.services.graph.fetch_graph
+  Ask SOCIAL_GRAPH_FUNCTION about one viewer; raises GraphUnavailable instead of guessing. home and public turn that into 503.
+- graph_or_unknown — stapel_feed.services.graph.graph_or_unknown
+  The degrading form for single-object reads: the graph, NOBODY for an anonymous viewer, UNKNOWN when the Function is down (only public content is then shown).
+
+## Extension points — what a product replaces, fork-free
+- REACTION_KINDS [setting]
+  The reaction vocabulary, default ('like',). Replace it to add 'heart' or others without a fork; an unknown kind answers error.400.reaction_kind_unknown.
+- SOCIAL_GRAPH_FUNCTION [strategy]
+  Dotted comm Function name answering {user_id, limit} -> {following, blocked, truncated}. Default profiles.social_graph; a host with its own graph replaces it. Unreachable means 503 on home and members' public, never an unfiltered feed.
+- STAPEL_FEED_POST_PRESENTER / STAPEL_FEED_COMMENT_PRESENTER [presenter]
+  Swap keys (STAPEL_SWAP) for the post and comment response presenters, so a host changes what the API shows without forking a view.
+- feed.post.created [comm_event]
+  A post was published: post id, author, visibility. Bodies never ride the bus.
+- feed.reaction.changed [comm_event]
+  A reaction was set or removed on a post or comment, with the target's author, so a projection or a gamification layer can count.
+- moderation.completed [comm_event]
+  Consumed: a rejected verdict on a post or comment hides it from every read (the author sees it as blocked); an approved verdict on a blocked row publishes it again.
+
+## Fits with — fleet dependencies
+- stapel-cdn (optional) — uploads behind the attachment refs; cdn.describe_many fills the image objects (without it they keep the ref and say cdn_unavailable)
+- stapel-core (required) — comm bus (feed.* emits, Functions, user.merged and moderation.completed consumers), AnchorPagination, GDPR owner protocol, AppSettings
+- stapel-moderation (optional) — post and comment target types (registered by the stapel-social preset) read feed.moderation_content and take content down through moderation.completed
+- stapel-notifications (optional) — feed.comment_received and feed.reaction_received reach the post author
+- stapel-profiles (required) — profiles.social_graph (>=0.23) answers whom a viewer follows and whom to hide; profiles.public_cards renders author cards. Without the graph, home and members' public answer 503
+
+## HTTP operations (11) — call by operationId, never by a typed path
+Paths are relative to `/feed/api/v1/`.
+### Feed
+- GET /authors/{user_id}/posts/ — feed_authors_posts_list
+- DELETE /comments/{comment_id}/ — feed_comments_destroy
+- GET /home/ — feed_home_list
+- POST /posts/{post_id}/comments/ — feed_posts_comments_create
+- GET /posts/{post_id}/comments/ — feed_posts_comments_list
+- POST /posts/ — feed_posts_create
+- DELETE /posts/{post_id}/ — feed_posts_destroy
+- PATCH /posts/{post_id}/ — feed_posts_partial_update
+- GET /posts/{post_id}/ — feed_posts_retrieve
+- GET /public/ — feed_public_list
+- PUT /reactions/ — feed_reactions_update
+
+## Error codes (53) — the StapelError envelope
+Render `t(code, params)`; branch UX on the remediation. Localized text lives in docs/errors.<lang>.md, not here.
+- error.400.attachment_ref_invalid [400] fix_input
+- error.400.bad_request [400] fix_input
+- error.400.captcha_invalid [400] retry
+- error.400.captcha_required [400] retry
+- error.400.expected_list [400] fix_input
+- error.400.field.blank [400] fix_input {field}
+- error.400.field.does_not_exist [400] fix_input {field}
+- error.400.field.invalid [400] fix_input {field}
+- error.400.field.invalid_choice [400] fix_input {field}
+- error.400.field.max_length [400] fix_input {field,max_length}
+- error.400.field.max_value [400] fix_input {field,max_value}
+- error.400.field.min_length [400] fix_input {field,min_length}
+- error.400.field.min_value [400] fix_input {field,min_value}
+- error.400.field.null [400] fix_input {field}
+- error.400.field.required [400] fix_input {field}
+- error.400.field.unique [400] fix_input {field}
+- error.400.invalid_ad_id [400] fix_input
+- error.400.reaction_kind_unknown [400] fix_input
+- error.400.too_many_attachments [400] fix_input {max}
+- error.400.validation_error [400] fix_input
+- error.400.verification_failed [400] verify
+- error.400.verification_invalid_factor [400] verify
+- error.401.unauthorized [401] reauthenticate
+- error.402.payment_required [402] retry
+- error.403.blocked [403] retry
+- error.403.forbidden [403] retry
+- error.403.home_requires_account [403] reauthenticate
+- error.403.network_blocked [403] contact_support
+- error.403.not_author [403] retry
+- error.403.verification_enrollment_required [403] verify
+- error.403.verification_required [403] verify
+- error.403.write_requires_account [403] reauthenticate
+- error.404.ad_not_found [404] retry
+- error.404.comment_not_found [404] retry
+- error.404.not_found [404] retry
+- error.404.post_not_found [404] retry
+- error.404.verification_challenge_not_found [404] verify
+- error.405.method_not_allowed [405] retry
+- error.406.not_acceptable [406] retry
+- error.408.request_timeout [408] retry
+- error.409.conflict [409] fix_input
+- error.409.edit_window_closed [409] fix_input
+- error.410.gone [410] retry
+- error.413.payload_too_large [413] retry
+- error.415.unsupported_media_type [415] retry
+- error.422.unprocessable_entity [422] wait_and_retry
+- error.423.locked [423] wait_and_retry
+- error.423.verification_locked [423] wait_and_retry
+- error.429.rate_limit [429] wait_and_retry {retry_after_minutes}
+- error.429.too_many_requests [429] wait_and_retry
+- error.500.internal [500] contact_support
+- error.503.mandate_unavailable [503] retry
+- error.503.social_graph_unavailable [503] wait_and_retry
+
+## Documented flows (3) — full steps in docs/flows.json
+- feed.post — Post an update
+- feed.public_read — Read the community
+- feed.react_comment — React and comment

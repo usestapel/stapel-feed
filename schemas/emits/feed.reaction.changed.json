@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "feed.reaction.changed",
+  "description": "A user set (added=true) or removed (added=false) a reaction kind on a post or comment; author_id is the target's author. Key = the post id (the comment's post for a comment).",
+  "type": "object",
+  "properties": {
+    "target_type": {
+      "type": "string",
+      "enum": [
+        "post",
+        "comment"
+      ]
+    },
+    "target_key": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "maxLength": 16
+    },
+    "added": {
+      "type": "boolean"
+    },
+    "author_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_type",
+    "target_key",
+    "user_id",
+    "kind",
+    "added",
+    "author_id"
+  ],
+  "additionalProperties": false
+}

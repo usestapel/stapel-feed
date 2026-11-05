@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "feed.moderation_content",
+  "description": "What a moderator reads about a feed target. Payload {post_id} or {comment_id} (the id_field of the post / comment moderation target types); a bare {target_key} names a post. Output: {author_id, text, body, media, attachments, created_at, url} - text/media are the names stapel-moderation reads, body/attachments the feed's own. Raises LookupError for an absent target.",
+  "type": "object",
+  "properties": {
+    "post_id": {
+      "type": "string"
+    },
+    "comment_id": {
+      "type": "string"
+    },
+    "target_key": {
+      "type": "string"
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

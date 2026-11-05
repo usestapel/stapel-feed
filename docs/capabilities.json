@@ -1,0 +1,111 @@
+{
+  "module": "stapel-feed",
+  "version": "0.1.0",
+  "provides": "Posts, comments, reactions and feeds for a community. Members post plain-text updates with up to ten uploaded pictures, public or for followers; others comment (flat, no threads) and react (one reaction per user per target, toggled, counted on the target in the same transaction). Four anchor-paginated reads: home (followed authors and own posts), public, one author's posts, one post with its comments. Following and blocks are read from profiles through one comm Function (profiles.social_graph); when it cannot be asked, home and public answer 503 rather than show a blocked author. Moderation takes a post or comment down through the moderation.completed verdict; GDPR erasure is a hard delete with counters recomputed.",
+  "axes": [
+    {
+      "key": "PUBLIC_READ",
+      "kind": "bool",
+      "default": true,
+      "group": "feed.read",
+      "gates": {
+        "operations": [],
+        "co_gates": [],
+        "behavior": "true: public/, authors/<id>/posts/, posts/<id>/ and its comments answer anonymous callers; false: they answer 401 to an unauthenticated caller. home/ is members only either way."
+      },
+      "curated": {
+        "summary": "Whether people without an account can read the public feed, profiles' post lists and single posts with their comments. true (default): an open community. false: members only. Values: true, false.",
+        "business_label": "Visitors can read"
+      }
+    },
+    {
+      "key": "WRITE_REQUIRES_ACCOUNT",
+      "kind": "bool",
+      "default": true,
+      "group": "feed.write",
+      "gates": {
+        "operations": [],
+        "co_gates": [],
+        "behavior": "true: writes from a guest session answer error.403.write_requires_account (remediation reauthenticate); false: guests write like members."
+      },
+      "curated": {
+        "summary": "Whether a guest session (no registered account) may post, comment and react. true (default): sign-in required. false: guests may write too. Values: true, false.",
+        "business_label": "Who may post and comment"
+      }
+    }
+  ],
+  "extension_points": [
+    {
+      "name": "SOCIAL_GRAPH_FUNCTION",
+      "kind": "strategy",
+      "summary": "Dotted comm Function name answering {user_id, limit} -> {following, blocked, truncated}. Default profiles.social_graph; a host with its own graph replaces it. Unreachable means 503 on home and members' public, never an unfiltered feed."
+    },
+    {
+      "name": "REACTION_KINDS",
+      "kind": "setting",
+      "summary": "The reaction vocabulary, default ('like',). Replace it to add 'heart' or others without a fork; an unknown kind answers error.400.reaction_kind_unknown."
+    },
+    {
+      "name": "STAPEL_FEED_POST_PRESENTER / STAPEL_FEED_COMMENT_PRESENTER",
+      "kind": "presenter",
+      "summary": "Swap keys (STAPEL_SWAP) for the post and comment response presenters, so a host changes what the API shows without forking a view."
+    },
+    {
+      "name": "feed.post.created",
+      "kind": "comm_event",
+      "summary": "A post was published: post id, author, visibility. Bodies never ride the bus."
+    },
+    {
+      "name": "feed.reaction.changed",
+      "kind": "comm_event",
+      "summary": "A reaction was set or removed on a post or comment, with the target's author, so a projection or a gamification layer can count."
+    },
+    {
+      "name": "moderation.completed",
+      "kind": "comm_event",
+      "summary": "Consumed: a rejected verdict on a post or comment hides it from every read (the author sees it as blocked); an approved verdict on a blocked row publishes it again."
+    }
+  ],
+  "surface": [
+    {
+      "name": "fetch_graph",
+      "kind": "gate_function",
+      "path": "stapel_feed.services.graph.fetch_graph",
+      "intent": "Ask SOCIAL_GRAPH_FUNCTION about one viewer; raises GraphUnavailable instead of guessing. home and public turn that into 503."
+    },
+    {
+      "name": "graph_or_unknown",
+      "kind": "gate_function",
+      "path": "stapel_feed.services.graph.graph_or_unknown",
+      "intent": "The degrading form for single-object reads: the graph, NOBODY for an anonymous viewer, UNKNOWN when the Function is down (only public content is then shown)."
+    }
+  ],
+  "operations_total": 11,
+  "requires": [
+    {
+      "module": "stapel-core",
+      "optional": false,
+      "reason": "comm bus (feed.* emits, Functions, user.merged and moderation.completed consumers), AnchorPagination, GDPR owner protocol, AppSettings"
+    },
+    {
+      "module": "stapel-profiles",
+      "optional": false,
+      "reason": "profiles.social_graph (>=0.23) answers whom a viewer follows and whom to hide; profiles.public_cards renders author cards. Without the graph, home and members' public answer 503"
+    },
+    {
+      "module": "stapel-cdn",
+      "optional": true,
+      "reason": "uploads behind the attachment refs; cdn.describe_many fills the image objects (without it they keep the ref and say cdn_unavailable)"
+    },
+    {
+      "module": "stapel-moderation",
+      "optional": true,
+      "reason": "post and comment target types (registered by the stapel-social preset) read feed.moderation_content and take content down through moderation.completed"
+    },
+    {
+      "module": "stapel-notifications",
+      "optional": true,
+      "reason": "feed.comment_received and feed.reaction_received reach the post author"
+    }
+  ]
+}
