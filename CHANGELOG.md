@@ -37,7 +37,10 @@ First release: posts, comments, reactions and feeds.
 - **Events** `feed.post.created`, `feed.post.deleted`,
   `feed.comment.created`, `feed.reaction.changed` (identity only, in
   `mutate_and_emit`); notifications `feed.comment_received`,
-  `feed.reaction_received` (debounced per target, 10 min); realtime
+  `feed.reaction_received` (debounced per target, 10 min, through
+  `request_notification(dedup_key, dedup_ttl)`: the notifications intake
+  delivers the first request per target in the window, the feed keeps no
+  debounce state; needs `stapel-core>=0.95.3`); realtime
   `feed:user:<id>` / `feed.activity`.
 - **Functions** `feed.counts`, `feed.export`. **`user.merged`** re-parents
   everything, keeping the oldest duplicate reaction.

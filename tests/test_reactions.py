@@ -108,20 +108,68 @@ def test_guest_reaction_403(client_for, user, guest, graph):
     assert key(r) == "error.403.write_requires_account"
 
 
-def test_reaction_notification_is_debounced_per_target(client_for, user, other_user, staff, graph,
-                                                      monkeypatch, django_capture_on_commit_callbacks):
-    sent = []
+@pytest.fixture
+def notification_bus(monkeypatch):
+    """Requests as the bus receives them, after core's own validation ran."""
+    published = []
     monkeypatch.setattr(
-        "stapel_core.notifications.publish.request_notification",
-        lambda t, user_id=None, variables=None, **kw: sent.append((t, user_id, variables)) or True,
+        "stapel_core.notifications.publish.publish",
+        lambda topic, event: published.append(event.payload),
     )
+    return published
+
+
+def _delivered(published):
+    """What an intake honouring ``dedup_key`` delivers: the first per key."""
+    claimed, out = set(), []
+    for payload in published:
+        claim = (payload["notification_type"], payload.get("dedup_key"))
+        if payload.get("dedup_key") and claim in claimed:
+            continue
+        claimed.add(claim)
+        out.append(payload)
+    return out
+
+
+def test_reaction_notification_is_debounced_per_target(client_for, user, other_user, staff, graph,
+                                                      notification_bus,
+                                                      django_capture_on_commit_callbacks):
     p = make_post(user)
+    other = make_post(user)
     with django_capture_on_commit_callbacks(execute=True):
         _put(client_for(other_user), p.pk)
         _put(client_for(staff), p.pk)
         _put(client_for(user), p.pk)  # own reaction: never notified
-    assert [(t, u) for t, u, _ in sent] == [("feed.reaction_received", str(user.pk))]
-    assert sent[0][2]["dedup_key"] == f"feed:notify:reaction:post:{p.pk}"
+        _put(client_for(other_user), other.pk)
+    reactions = [n for n in notification_bus if n["notification_type"] == "feed.reaction_received"]
+    assert [(n["user_id"], n["dedup_key"], n["dedup_ttl"]) for n in reactions] == [
+        (str(user.pk), f"feed:notify:reaction:post:{p.pk}", 600),
+        (str(user.pk), f"feed:notify:reaction:post:{p.pk}", 600),
+        (str(user.pk), f"feed:notify:reaction:post:{other.pk}", 600),
+    ]
+    delivered = _delivered(reactions)
+    assert [(n["variables"]["actor_id"], n["variables"]["post_id"]) for n in delivered] == [
+        (str(other_user.pk), str(p.pk)),
+        (str(other_user.pk), str(other.pk)),
+    ]
+
+
+def test_the_feed_keeps_no_debounce_state_of_its_own(client_for, user, other_user, graph,
+                                                     notification_bus,
+                                                     django_capture_on_commit_callbacks):
+    """The window is the intake's: a cleared cache changes nothing here."""
+    from django.core.cache import cache
+
+    p = make_post(user)
+    with django_capture_on_commit_callbacks(execute=True):
+        _put(client_for(other_user), p.pk)
+        _put(client_for(other_user), p.pk)  # off
+        cache.clear()
+        _put(client_for(other_user), p.pk)  # on again
+    keys = [n["dedup_key"] for n in notification_bus
+            if n["notification_type"] == "feed.reaction_received"]
+    assert keys == [f"feed:notify:reaction:post:{p.pk}"] * 2
+    assert len(_delivered(notification_bus)) == 1
 
 
 def test_activity_signal_reaches_the_post_author(client_for, user, other_user, graph,

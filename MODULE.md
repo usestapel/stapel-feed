@@ -85,7 +85,7 @@ reads `AllowAny` + `ANONYMOUS_ALLOWED` (`PUBLIC_READ` in the body); writes
 | Function (provides) | `feed.counts` | `{user_id}` → `{posts}` | `schemas/functions/` |
 | Function (provides) | `feed.export` | `{cursor, limit}` → `{rows, cursor, total}` | `schemas/functions/` |
 | Function (calls) | `profiles.social_graph`, `profiles.public_cards`, `cdn.describe_many` | settings above | owners' schemas |
-| Notification | `feed.comment_received`, `feed.reaction_received` (debounced 10 min per target) | variables `post_id`, `actor_id`, `post_url` | notifications registry |
+| Notification | `feed.comment_received`, `feed.reaction_received` (debounced 10 min per target by the intake: `dedup_key` `feed:notify:reaction:<type>:<key>`, `dedup_ttl` 600) | variables `post_id`, `actor_id`, `post_url` | notifications registry |
 | Signal | `feed:user:<post_author_id>` / `feed.activity` | `{post_id}` | no-op without a transport |
 
 ### Reserved, not built

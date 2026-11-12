@@ -72,12 +72,23 @@ def post_url(post_id) -> str:
         return ""
 
 
-def notify_after_commit(notification_type: str, user_id: str, variables: dict) -> None:
-    """Best-effort notification to ``user_id``, sent once the transaction commits."""
+def notify_after_commit(notification_type: str, user_id: str, variables: dict, *,
+                        dedup_key: str | None = None, dedup_ttl: int | None = None) -> None:
+    """Best-effort notification to ``user_id``, sent once the transaction commits.
+
+    ``dedup_key``/``dedup_ttl`` go to the notifications intake, which
+    delivers at most one request per ``(notification_type, dedup_key)``
+    inside the window.
+    """
     from ..conf import feed_settings
 
     if not feed_settings.NOTIFY:
         return
+    dedup = {}
+    if dedup_key is not None:
+        dedup["dedup_key"] = dedup_key
+        if dedup_ttl is not None:
+            dedup["dedup_ttl"] = dedup_ttl
 
     def _send():
         try:
@@ -88,6 +99,7 @@ def notify_after_commit(notification_type: str, user_id: str, variables: dict) -
                 user_id=str(user_id),
                 variables=variables,
                 source_service="feed",
+                **dedup,
             )
         except Exception:
             logger.warning(
@@ -105,17 +117,13 @@ def reaction_dedup_key(target_type: str, target_key) -> str:
 def notify_reaction_debounced(author_id: str, target_type: str, target_key, post_id, actor_id) -> bool:
     """At most one reaction notification per target per debounce window.
 
-    The dedup key lives in the cache (``cache.add`` is atomic): the first
-    reaction in a window notifies, the rest are counted on the target only.
+    Every reaction asks; the notifications intake claims the target's
+    ``dedup_key`` for ``REACTION_NOTIFY_DEBOUNCE_SECONDS`` and delivers only
+    the first request in the window. Returns whether a request was made.
     """
-    from django.core.cache import cache
-
     from ..conf import feed_settings
 
     if not feed_settings.NOTIFY:
-        return False
-    key = reaction_dedup_key(target_type, target_key)
-    if not cache.add(key, 1, REACTION_NOTIFY_DEBOUNCE_SECONDS):
         return False
     notify_after_commit(
         NOTIFY_REACTION_RECEIVED,
@@ -126,8 +134,9 @@ def notify_reaction_debounced(author_id: str, target_type: str, target_key, post
             "post_id": str(post_id),
             "actor_id": str(actor_id),
             "post_url": post_url(post_id),
-            "dedup_key": key,
         },
+        dedup_key=reaction_dedup_key(target_type, target_key),
+        dedup_ttl=REACTION_NOTIFY_DEBOUNCE_SECONDS,
     )
     return True
 
