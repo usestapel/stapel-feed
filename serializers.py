@@ -6,6 +6,7 @@ component after its serializer minus the ``Serializer`` suffix
 client from those names. Every CharField declares a ``max_length``.
 """
 from rest_framework import serializers
+from stapel_core.media.drf import VariantMetaSerializer
 
 from . import models as m
 
@@ -13,7 +14,13 @@ IMAGE_META_STATUSES = ("ok", "partial", "missing")
 
 
 class ImageObjectSerializer(serializers.Serializer):
-    """The fleet's one image object (stapel-cdn's describe vocabulary)."""
+    """The fleet's one image object (stapel-cdn's describe vocabulary).
+
+    ``variants`` items are core's ``VariantMeta`` (the component profiles'
+    ``StapelImage`` carries), and ``url`` is the default rendition — the
+    ``original`` rung, else the largest — or ``null`` when the ladder is
+    empty, so a renderer draws it without parsing the ladder.
+    """
 
     ref = serializers.CharField(max_length=m.ATTACHMENT_REF_MAX_LENGTH)
     mime = serializers.CharField(max_length=100, allow_null=True)
@@ -26,7 +33,8 @@ class ImageObjectSerializer(serializers.Serializer):
     animated = serializers.BooleanField(allow_null=True)
     preview_b64 = serializers.CharField(max_length=16384, allow_null=True)
     preview_kind = serializers.CharField(max_length=32, allow_null=True)
-    variants = serializers.ListField(child=serializers.DictField())
+    variants = VariantMetaSerializer(many=True)
+    url = serializers.CharField(max_length=2048, allow_null=True)
     meta_status = serializers.ChoiceField(choices=IMAGE_META_STATUSES)
     meta_reason = serializers.CharField(max_length=64, allow_null=True)
 

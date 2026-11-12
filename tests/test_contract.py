@@ -30,7 +30,7 @@ STABLE_COMPONENTS = {
     "PostResponse", "PostPage", "PostCreateRequest", "PatchedPostUpdateRequest",
     "CommentResponse", "CommentPage", "CommentCreateRequest",
     "ReactionToggleRequest", "ReactionStateResponse",
-    "AuthorCard", "ImageObject",
+    "AuthorCard", "ImageObject", "VariantMeta",
     "ContentStatusEnum", "VisibilityEnum", "TargetTypeEnum", "ImageMetaStatusEnum",
 }
 

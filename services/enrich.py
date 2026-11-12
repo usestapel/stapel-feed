@@ -17,10 +17,11 @@ REASON_CDN_UNAVAILABLE = "cdn_unavailable"
 REASON_UNKNOWN_REF = "unknown_ref"
 
 #: Every key an image object carries besides ``ref`` — the shape stapel-cdn's
-#: ``describe_many`` answers and profiles' card avatar carries.
+#: ``describe_many`` answers and profiles' card avatar carries, plus ``url``,
+#: the default rendition this module lifts from the ladder.
 IMAGE_KEYS = (
     "mime", "ext", "bytes", "width", "height", "aspect", "square",
-    "animated", "preview_b64", "preview_kind", "variants",
+    "animated", "preview_b64", "preview_kind", "variants", "url",
 )
 
 
@@ -56,9 +57,49 @@ def author_cards(user_ids) -> dict:
         cards[str(user_id)] = {
             "user_id": str(user_id),
             "display_name": str(card.get("display_name") or ""),
-            "avatar": avatar if isinstance(avatar, dict) and avatar.get("ref") else None,
+            "avatar": (
+                _image(str(avatar["ref"]), avatar, None)
+                if isinstance(avatar, dict) and avatar.get("ref") else None
+            ),
         }
     return cards
+
+
+def _variant(raw) -> dict | None:
+    """One ladder rung in ``stapel_core.media.VariantMeta`` form, or ``None``.
+
+    A rung without a url has nothing to draw and is dropped; keys beyond the
+    shared five (``watermarked``, ``clean_url``) stay with the CDN.
+    """
+    if not isinstance(raw, dict):
+        return None
+    url = raw.get("url")
+    if not isinstance(url, str) or not url:
+        return None
+    tier = raw.get("tier")
+    branch = raw.get("branch")
+    width, height = raw.get("width"), raw.get("height")
+    return {
+        "tier": "original" if tier is None else str(tier),
+        "branch": branch if branch in ("w", "h") else None,
+        "url": url,
+        "width": width if isinstance(width, int) and not isinstance(width, bool) else None,
+        "height": height if isinstance(height, int) and not isinstance(height, bool) else None,
+    }
+
+
+def default_url(variants: list[dict]) -> str | None:
+    """The default rendition: the ``original`` rung, else the largest one.
+
+    The rule ``stapel_core.media.image`` uses for a ``StapelImage``'s ``url``;
+    ``None`` when the ladder is empty (nothing the CDN could describe).
+    """
+    for variant in variants:
+        if variant["tier"] == "original":
+            return variant["url"]
+    if not variants:
+        return None
+    return max(variants, key=lambda v: (v["width"] or 0) * (v["height"] or 0))["url"]
 
 
 def _image(ref: str, snapshot: dict | None, reason: str | None) -> dict:
@@ -71,7 +112,11 @@ def _image(ref: str, snapshot: dict | None, reason: str | None) -> dict:
     for key in IMAGE_KEYS:
         if key in snapshot:
             image[key] = snapshot[key]
-    image["variants"] = list(snapshot.get("variants") or [])
+    rungs = snapshot.get("variants")
+    image["variants"] = [
+        v for v in (_variant(raw) for raw in (rungs if isinstance(rungs, list) else [])) if v
+    ]
+    image["url"] = default_url(image["variants"])
     image["meta_status"] = str(snapshot.get("meta_status") or META_OK)
     image["meta_reason"] = snapshot.get("meta_reason")
     return image
@@ -97,4 +142,4 @@ def image_objects(refs) -> dict:
     return out
 
 
-__all__ = ["IMAGE_KEYS", "author_cards", "image_objects"]
+__all__ = ["IMAGE_KEYS", "author_cards", "default_url", "image_objects"]

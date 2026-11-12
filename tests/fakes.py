@@ -60,6 +60,7 @@ class FakeCards(_FakeFunction):
     def __init__(self):
         super().__init__()
         self.names: dict[str, str] = {}
+        self.avatars: dict[str, dict] = {}
 
     def __call__(self, payload):
         self.calls.append(dict(payload))
@@ -68,7 +69,7 @@ class FakeCards(_FakeFunction):
         ids = [str(u) for u in payload["user_ids"]]
         return {
             "profiles": {
-                u: {"user_id": u, "display_name": self.names[u], "avatar": None,
+                u: {"user_id": u, "display_name": self.names[u], "avatar": self.avatars.get(u),
                     "member_since": None, "seller_type": None}
                 for u in ids if u in self.names
             },

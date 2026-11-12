@@ -705,7 +705,7 @@
       },
       "ImageObject": {
         "type": "object",
-        "description": "The fleet's one image object (stapel-cdn's describe vocabulary).",
+        "description": "The fleet's one image object (stapel-cdn's describe vocabulary).\n\n``variants`` items are core's ``VariantMeta`` (the component profiles'\n``StapelImage`` carries), and ``url`` is the default rendition — the\n``original`` rung, else the largest — or ``null`` when the ladder is\nempty, so a renderer draws it without parsing the ladder.",
         "properties": {
           "ref": {
             "type": "string",
@@ -759,9 +759,13 @@
           "variants": {
             "type": "array",
             "items": {
-              "type": "object",
-              "additionalProperties": {}
+              "$ref": "#/components/schemas/VariantMeta"
             }
+          },
+          "url": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2048
           },
           "meta_status": {
             "$ref": "#/components/schemas/ImageMetaStatusEnum"
@@ -785,6 +789,7 @@
           "preview_kind",
           "ref",
           "square",
+          "url",
           "variants",
           "width"
         ]
@@ -1022,6 +1027,37 @@
         ],
         "type": "string",
         "description": "* `post` - Post\n* `comment` - Comment"
+      },
+      "VariantMeta": {
+        "type": "object",
+        "description": "One generated variant file (or the original) — mirrors ``VariantMeta``.",
+        "properties": {
+          "tier": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "nullable": true
+          },
+          "height": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "branch",
+          "height",
+          "tier",
+          "url",
+          "width"
+        ]
       },
       "VisibilityEnum": {
         "enum": [

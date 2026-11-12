@@ -24,6 +24,11 @@ First release: posts, comments, reactions and feeds.
 - **Author cards** from `profiles.public_cards` and attachment image
   objects from `cdn.describe_many`, one call per page each, degrading to
   `null` / ref-only.
+- **Typed image objects**: `ImageObject.variants` items are core's
+  `VariantMeta` component (`tier` as a string, `branch`, `url`, `width`,
+  `height` — the rungs profiles' `StapelImage` carries), and a top-level
+  `url` names the default rendition (the `original` rung, else the largest;
+  `null` when nothing was described). Author avatars get the same shape.
 - **Comments** (flat) and **reactions** (one per user per target, toggle or
   set with `active`); counters recomputed from rows under the parent's row
   lock in the writer's transaction, unique constraint backstop.
