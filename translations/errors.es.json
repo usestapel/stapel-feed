@@ -1,0 +1,13 @@
+{
+  "error.400.attachment_ref_invalid": "Este adjunto no es una referencia de subida válida",
+  "error.400.reaction_kind_unknown": "Reacción desconocida",
+  "error.400.too_many_attachments": "Una publicación admite como máximo {max} adjuntos",
+  "error.403.blocked": "No puedes interactuar con esta persona",
+  "error.403.home_requires_account": "Inicia sesión para ver a las personas que sigues",
+  "error.403.not_author": "Solo el autor puede hacer esto",
+  "error.403.write_requires_account": "Inicia sesión para publicar, comentar o reaccionar",
+  "error.404.comment_not_found": "Comentario no encontrado",
+  "error.404.post_not_found": "Publicación no encontrada",
+  "error.409.edit_window_closed": "Esta publicación ya no se puede editar",
+  "error.503.social_graph_unavailable": "El feed no está disponible por el momento; inténtalo de nuevo en breve"
+}

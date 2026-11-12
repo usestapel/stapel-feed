@@ -36,7 +36,7 @@ pip install stapel-feed
 
 ## Documentation
 
-[OpenAPI](https://github.com/usestapel/stapel-feed/blob/main/docs/schema.json) · [capabilities.json](https://github.com/usestapel/stapel-feed/blob/main/docs/capabilities.json) · [llms.txt (for agents)](https://github.com/usestapel/stapel-feed/blob/main/docs/llms.txt)
+**Errors:** [English](https://github.com/usestapel/stapel-feed/blob/main/docs/errors.en.md) · [Español](https://github.com/usestapel/stapel-feed/blob/main/docs/errors.es.md) · [Русский](https://github.com/usestapel/stapel-feed/blob/main/docs/errors.ru.md) · [OpenAPI](https://github.com/usestapel/stapel-feed/blob/main/docs/schema.json) · [capabilities.json](https://github.com/usestapel/stapel-feed/blob/main/docs/capabilities.json) · [llms.txt (for agents)](https://github.com/usestapel/stapel-feed/blob/main/docs/llms.txt)
 
 ## What this is
 

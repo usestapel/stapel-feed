@@ -1,0 +1,13 @@
+{
+  "error.400.attachment_ref_invalid": "Это вложение не является корректной ссылкой на загрузку",
+  "error.400.reaction_kind_unknown": "Неизвестная реакция",
+  "error.400.too_many_attachments": "К посту можно прикрепить не более {max} вложений",
+  "error.403.blocked": "Вы не можете взаимодействовать с этим человеком",
+  "error.403.home_requires_account": "Войдите, чтобы видеть тех, на кого вы подписаны",
+  "error.403.not_author": "Это может сделать только автор",
+  "error.403.write_requires_account": "Войдите, чтобы публиковать, комментировать или реагировать",
+  "error.404.comment_not_found": "Комментарий не найден",
+  "error.404.post_not_found": "Пост не найден",
+  "error.409.edit_window_closed": "Этот пост больше нельзя редактировать",
+  "error.503.social_graph_unavailable": "Лента временно недоступна, попробуйте чуть позже"
+}

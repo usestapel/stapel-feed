@@ -1,0 +1,94 @@
+{
+  "errors.es": {
+    "error.400.attachment_ref_invalid": {
+      "hash": "fb26fad7cc770f87",
+      "origin": "llm"
+    },
+    "error.400.reaction_kind_unknown": {
+      "hash": "cd6ad506d1752c1e",
+      "origin": "llm"
+    },
+    "error.400.too_many_attachments": {
+      "hash": "9a34e1162128339a",
+      "origin": "llm"
+    },
+    "error.403.blocked": {
+      "hash": "5cea90fd38f37f10",
+      "origin": "llm"
+    },
+    "error.403.home_requires_account": {
+      "hash": "df9ed8b536b6e681",
+      "origin": "llm"
+    },
+    "error.403.not_author": {
+      "hash": "2b79632ec94b851f",
+      "origin": "llm"
+    },
+    "error.403.write_requires_account": {
+      "hash": "1404071e8774ca70",
+      "origin": "llm"
+    },
+    "error.404.comment_not_found": {
+      "hash": "391ff1cbc2948695",
+      "origin": "llm"
+    },
+    "error.404.post_not_found": {
+      "hash": "dba8fb4c58ba2fa2",
+      "origin": "llm"
+    },
+    "error.409.edit_window_closed": {
+      "hash": "2803415a95b021e1",
+      "origin": "llm"
+    },
+    "error.503.social_graph_unavailable": {
+      "hash": "f6ec7c8b7a3d74b1",
+      "origin": "llm"
+    }
+  },
+  "errors.ru": {
+    "error.400.attachment_ref_invalid": {
+      "hash": "fb26fad7cc770f87",
+      "origin": "llm"
+    },
+    "error.400.reaction_kind_unknown": {
+      "hash": "cd6ad506d1752c1e",
+      "origin": "llm"
+    },
+    "error.400.too_many_attachments": {
+      "hash": "9a34e1162128339a",
+      "origin": "llm"
+    },
+    "error.403.blocked": {
+      "hash": "5cea90fd38f37f10",
+      "origin": "llm"
+    },
+    "error.403.home_requires_account": {
+      "hash": "df9ed8b536b6e681",
+      "origin": "llm"
+    },
+    "error.403.not_author": {
+      "hash": "2b79632ec94b851f",
+      "origin": "llm"
+    },
+    "error.403.write_requires_account": {
+      "hash": "1404071e8774ca70",
+      "origin": "llm"
+    },
+    "error.404.comment_not_found": {
+      "hash": "391ff1cbc2948695",
+      "origin": "llm"
+    },
+    "error.404.post_not_found": {
+      "hash": "dba8fb4c58ba2fa2",
+      "origin": "llm"
+    },
+    "error.409.edit_window_closed": {
+      "hash": "2803415a95b021e1",
+      "origin": "llm"
+    },
+    "error.503.social_graph_unavailable": {
+      "hash": "f6ec7c8b7a3d74b1",
+      "origin": "llm"
+    }
+  }
+}

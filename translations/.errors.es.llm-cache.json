@@ -1,0 +1,46 @@
+{
+  "error.400.attachment_ref_invalid": {
+    "hash": "fb26fad7cc770f87",
+    "text": "Este adjunto no es una referencia de subida válida"
+  },
+  "error.400.reaction_kind_unknown": {
+    "hash": "cd6ad506d1752c1e",
+    "text": "Reacción desconocida"
+  },
+  "error.400.too_many_attachments": {
+    "hash": "9a34e1162128339a",
+    "text": "Una publicación admite como máximo {max} adjuntos"
+  },
+  "error.403.blocked": {
+    "hash": "5cea90fd38f37f10",
+    "text": "No puedes interactuar con esta persona"
+  },
+  "error.403.home_requires_account": {
+    "hash": "df9ed8b536b6e681",
+    "text": "Inicia sesión para ver a las personas que sigues"
+  },
+  "error.403.not_author": {
+    "hash": "2b79632ec94b851f",
+    "text": "Solo el autor puede hacer esto"
+  },
+  "error.403.write_requires_account": {
+    "hash": "1404071e8774ca70",
+    "text": "Inicia sesión para publicar, comentar o reaccionar"
+  },
+  "error.404.comment_not_found": {
+    "hash": "391ff1cbc2948695",
+    "text": "Comentario no encontrado"
+  },
+  "error.404.post_not_found": {
+    "hash": "dba8fb4c58ba2fa2",
+    "text": "Publicación no encontrada"
+  },
+  "error.409.edit_window_closed": {
+    "hash": "2803415a95b021e1",
+    "text": "Esta publicación ya no se puede editar"
+  },
+  "error.503.social_graph_unavailable": {
+    "hash": "f6ec7c8b7a3d74b1",
+    "text": "El feed no está disponible por el momento; inténtalo de nuevo en breve"
+  }
+}

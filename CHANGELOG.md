@@ -44,6 +44,11 @@ First release: posts, comments, reactions and feeds.
   `feed:user:<id>` / `feed.activity`.
 - **Functions** `feed.counts`, `feed.export`. **`user.merged`** re-parents
   everything, keeping the oldest duplicate reaction.
+- **Error catalogs** `translations/errors.{ru,es}.json` for every code in
+  `errors.py` (with the `.state.json` provenance sidecar), shipped in the
+  wheel, and the per-language error reference `docs/errors.{en,ru,es}.md`;
+  `tests/test_error_i18n.py` gates coverage, drift, placeholders and
+  foreign keys.
 - **GDPR owner** `feed` (`account`): hard delete, counters recomputed.
 - **Checks** E001 (reaction kinds), E002 (bounds), W001 (graph
   unreachable), W003 (`NOTIFY_FOLLOWERS` reserved). Admin with
