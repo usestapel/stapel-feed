@@ -2,7 +2,7 @@
 
 Posts, comments, reactions and feeds for a community. Members post plain-text updates with up to ten uploaded pictures, public or for followers; others comment (flat, no threads) and react (one reaction per user per target, toggled, counted on the target in the same transaction). Four anchor-paginated reads: home (followed authors and own posts), public, one author's posts, one post with its comments. Following and blocks are read from profiles through one comm Function (profiles.social_graph); when it cannot be asked, home and public answer 503 rather than show a blocked author. Moderation takes a post or comment down through the moderation.completed verdict; GDPR erasure is a hard delete with counters recomputed.
 
-Contract: axes 2 · surface 2 · extension points 6 · operations 11 · error codes 53 · flows 3.
+Contract: axes 2 · surface 2 · extension points 6 · operations 11 · error codes 54 · flows 3.
 Generated from docs/capabilities.json by `stapel-llms-txt` — do not edit; drift-gated by `make contract-check`.
 
 ## Configuration axes — what a product switches on
@@ -56,7 +56,7 @@ Paths are relative to `/feed/api/v1/`.
 - GET /public/ — feed_public_list
 - PUT /reactions/ — feed_reactions_update
 
-## Error codes (53) — the StapelError envelope
+## Error codes (54) — the StapelError envelope
 Render `t(code, params)`; branch UX on the remediation. Localized text lives in docs/errors.<lang>.md, not here.
 - error.400.attachment_ref_invalid [400] fix_input
 - error.400.bad_request [400] fix_input
@@ -77,6 +77,7 @@ Render `t(code, params)`; branch UX on the remediation. Localized text lives in 
 - error.400.invalid_ad_id [400] fix_input
 - error.400.reaction_kind_unknown [400] fix_input
 - error.400.too_many_attachments [400] fix_input {max}
+- error.400.too_many_ids [400] fix_input {requested,limit}
 - error.400.validation_error [400] fix_input
 - error.400.verification_failed [400] verify
 - error.400.verification_invalid_factor [400] verify
@@ -106,7 +107,7 @@ Render `t(code, params)`; branch UX on the remediation. Localized text lives in 
 - error.422.unprocessable_entity [422] wait_and_retry
 - error.423.locked [423] wait_and_retry
 - error.423.verification_locked [423] wait_and_retry
-- error.429.rate_limit [429] wait_and_retry {retry_after_minutes}
+- error.429.rate_limit [429] wait_and_retry {retry_after_display,retry_after,retry_after_minutes}
 - error.429.too_many_requests [429] wait_and_retry
 - error.500.internal [500] contact_support
 - error.503.mandate_unavailable [503] retry

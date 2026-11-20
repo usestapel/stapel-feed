@@ -30,7 +30,7 @@ pip install stapel-feed
 | Config axes | 2 |
 | Usage surface | 2 |
 | Extension points | 6 |
-| Error codes | 53 |
+| Error codes | 54 |
 | Documented flows | 3 |
 | Fleet dependencies | [`stapel-cdn`](https://github.com/usestapel/stapel-cdn) (optional) · [`stapel-core`](https://github.com/usestapel/stapel-core) · [`stapel-moderation`](https://github.com/usestapel/stapel-moderation) (optional) · [`stapel-notifications`](https://github.com/usestapel/stapel-notifications) (optional) · [`stapel-profiles`](https://github.com/usestapel/stapel-profiles) |
 
